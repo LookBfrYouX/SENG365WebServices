@@ -39,7 +39,7 @@ exports.loadData = async function () {
  * @returns {Promise<void>}
  */
 async function populateDefaultUsers() {
-    const createSQL = 'INSERT INTO `user` (`first_name`, `last_name`, `email`, `password`, `image_filename`) VALUES ?';
+    const createSQL = 'INSERT INTO `user` (`email`, `first_name`, `last_name`, `image_filename`, `password`) VALUES ?';
     let {properties, usersData} = require('../resources/default_users');
 
     // Shallow copy all the user arrays within the main data array
@@ -59,7 +59,7 @@ async function populateDefaultUsers() {
 
 async function changePasswordToHash(user, passwordIndex) {
     // TODO you need to implement "passwords.hash()" yourself, then uncomment the line below.
-    // user[passwordIndex] = await passwords.hash(user[passwordIndex]);
+    user[passwordIndex] = await passwords.hash(user[passwordIndex]);
 
     // It is recommended you use a reputable cryptology library to do the actual hashing/comparing for you...
 }

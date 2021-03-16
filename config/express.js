@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const { allowCrossOriginRequestsMiddleware } = require('../app/middleware/cors.middleware');
 
+const fs = require('fs');
 
 module.exports = function () {
     // INITIALISE EXPRESS //
@@ -24,7 +25,11 @@ module.exports = function () {
     });
 
     // ROUTES
-    require('../app/routes/backdoor.routes')(app);
+    const routeFiles = fs.readdirSync('app/routes');
+    let i = 0;
+    for (; i < routeFiles.length; i++) {
+        require(`../app/routes/${routeFiles[i]}`)(app);
+    }
 
     return app;
 };
