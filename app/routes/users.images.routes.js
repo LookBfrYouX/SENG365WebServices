@@ -5,6 +5,5 @@ module.exports = function (app) {
     .get(users.get)
     .put(users.set)
     .delete(users.delete)
-  
-    
+}
   

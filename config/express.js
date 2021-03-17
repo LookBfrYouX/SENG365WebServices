@@ -28,7 +28,7 @@ module.exports = function () {
     const routeFiles = fs.readdirSync('app/routes');
     let i = 0;
     for (; i < routeFiles.length; i++) {
-        require(`../app/routes/${routeFiles[i]}`)(app);
+        require(`../app/routes/${routeFiles[i].substring(0, routeFiles[i].length - 3)}`)(app);
     }
 
     return app;

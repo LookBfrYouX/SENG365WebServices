@@ -13,4 +13,4 @@ module.exports = function (app) {
   app.route(app.rootUrl + '/events/categories')
     .get(events.categories)
   
-    
+}

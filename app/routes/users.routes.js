@@ -15,6 +15,6 @@ module.exports = function (app) {
     .get(users.view)
     .patch(users.edit)
   
-  
+}
     
   

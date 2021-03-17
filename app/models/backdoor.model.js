@@ -1,5 +1,6 @@
 const db = require('../../config/db');
 const fs = require('mz/fs');
+const passwords = require('../helpers/passwords')
 
 const imageDirectory = './storage/images/';
 const defaultImageDirectory = './storage/default/';
