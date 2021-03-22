@@ -9,6 +9,21 @@ exports.add = async function(req, res) {
 };
 
 exports.detailed = async function(req, res) {
+  const id = req.params.id;
+  try {
+    const result = await events.model.getDetails(id);
+    if (result.length === 0) {
+      res.status(404)
+        .send('Not Found')
+    } else {
+      ers.status(200)
+        .send(result);
+      }
+    } catch(err) {
+      
+      res.status(500)
+        .send(`Internal Server Error`)
+    
   return null;
 };
 
