@@ -2,6 +2,7 @@ users = require('../models/users.model')
 password = require ('../helpers/passwords')
 generateToken = require ('../helpers/token')
 auth = require ('../middleware/authorize.middleware')
+number = require ('is-number')
 
 //Works
 exports.register = async function(req, res) {
@@ -9,7 +10,7 @@ exports.register = async function(req, res) {
   userPassword = await password.hash(user.password);
   try {
     const emailCheck = await users.checkEmailExists(user.email);
-    if (emailCheck === false) {
+    if (emailCheck === false && user.email.includes('@') !== true) {
       userId = await users.addUser(user, userPassword);
       res.statusMessage = 'Created';
         res.status(201)
@@ -34,7 +35,6 @@ exports.login = async function(req, res) {
     const user = (await users.searchUserBy(`email = '${emailReq}'`))[0]
     console.log(user)
     if (password.compareHash(passwordReq, user.password)) {
-      console.log('here')
       const token = await generateToken.generateAuth();
       await users.setAuthToken(token, emailReq);
       res.statusMessage = 'OK';
@@ -42,7 +42,7 @@ exports.login = async function(req, res) {
          .json({userId:user.userId, token:`${token}`});
     } else {
       res.statusMessage = 'Bad Request';
-      res.status(200)
+      res.status(400)
          .send();
     }
   } catch {
@@ -57,7 +57,6 @@ exports.logout = async function(req, res) {
     if (await auth.Authorized(req, res)) {
       const user = await users.searchUserBy(`id = '${req.authenticatedUserId}'`)
       await users.deleteAuthToken(user.email)
-      console.log('OK')
       res.statusMessage = 'OK';
       res.status(200)
          .send();
@@ -74,11 +73,9 @@ exports.logout = async function(req, res) {
   };
 //works
 exports.view = async function(req, res) {
-  const userID = req.params.id;
+  const userID = req.params.id
   const user = (await users.searchUserBy(`id = ${userID}`))[0];
   await auth.Authorized(req, res)
-  console.log(req.authenticatedUserId);
-  console.log(userID);
   if (req.authenticatedUserId === parseInt(userID)) {
     res.statusMessage = 'OK';
     res.status(200)
@@ -96,26 +93,72 @@ exports.view = async function(req, res) {
 
 exports.edit = async function(req, res) {
   const userID = req.params.id;
+  var query = '';
+  // if Authorized / logged in
   try {
-    const user = await users.searchUserBy(`id = ${userID}`)
-    const passwordReq = req.body.currentPassword;
-    const hashedPass = password.hash(passwordReq);
-    if (password.compareHash(user.password, hashedPass)) {
-      if (req.body.password)
-      updateUserByID(req, userID);
-      res.statusMessage = 'OK';
-      res.status(200)
-         .send();
+    if (number(userID)) {
+      const user = await users.searchUserBy(`id = ${userID}`);
+      if (await auth.Authorized(req, res)) {
+        if (req.authenticatedUserId === userID) {
+          // can edit user
+          if (req.body.firstName) {
+            query += `firstName = '${req.body.firstName}', `;
+          } if (req.body.lastName) {
+            query += `lastName = '${req.body.lastName}', `;
+          } if (req.body.email) {
+            if (await users.checkEmailExists(req.body.email) || req.body.email.includes('@')) {
+              res.statusMessage = 'Bad Request';
+              res.status(400)
+                 .send();
+            } else {
+              query += `email = '${req.body.email}', `;
+            }
+
+          } if (req.body.password) {
+            // if currentPassword is included
+            if (req.body.currentPassword) {
+              const passwordReq = req.body.currentPassword;
+              if (await password.compareHash(passwordReq, user[0].password)) {
+                newHashedPassword = await password.hash(req.body.password)
+                query += `password = '${newHashedPassword}', `;
+              } else {
+                res.statusMessage = 'Forbidden';
+                res.status(402)
+                   .send();
+                }
+            } else {
+              res.statusMessage = 'Bad Request';
+              res.status(400)
+                 .send();
+              }
+          }
+          if (!query) {
+            res.statusMessage = 'OK';
+            res.status(200)
+               .send();
+          } else {
+            query = query.slice(0,-2);
+            query += ' '
+            await users.updateUserByID(query, parseInt(userID));
+            res.statusMessage = 'OK';
+            res.status(200)
+               .send();
+          }
+      } else {
+        res.statusMessage = 'Unauthorized';
+        res.status(401)
+           .send();
+      }
     } else {
-      res.statusMessage = 'Unauthorized';
+      res.statusMessage = 'Forbidden';
       res.status(401)
          .send();
     }
-
-  } catch {
-
+}
+} catch (err) {
+  console.log(err);
+    res.statusMessage = 'Internal Server Error';
+    res.status(500)
+       .send();
   }
-
-
-
-  };
+};

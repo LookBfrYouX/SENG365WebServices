@@ -1,5 +1,5 @@
 db = require('../../config/db')
-
+// ssh nbt25@linux.cosc.canterbury.ac.nz -L 3306:db2.csse.canterbury.ac.nz:3306 -N
 exports.checkEmailExists = async function(email) {
   try {
     const conn = await db.getPool().getConnection();
@@ -47,14 +47,12 @@ exports.searchUserBy = async function(searchParam) {
 	}
 }
 
-exports.updateUserByID = async function(list, id) {
+exports.updateUserByID = async function(params, id) {
   try {
     const conn = await db.getPool().getConnection();
-    const query = `UPDATE user
-                  SET ?
-                  WHERE id = ?
-                  `
-    await conn.query( query, [list, id] );
+    const query = 'UPDATE user SET ' + params + 'WHERE id = ?'
+    console.log(query);
+    await conn.query( query, [id] );
     conn.release();
   } catch (err) {
     console.log(err);
@@ -65,8 +63,6 @@ exports.updateUserByID = async function(list, id) {
 exports.setAuthToken = async function(token, email) {
   try {
     const conn = await db.getPool().getConnection();
-    console.log(token);
-    console.log(email)
     const query = `UPDATE user SET user.auth_token = ? WHERE user.email = ?;`;
 		await conn.query( query, [token, email] );
 	  conn.release();
