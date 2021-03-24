@@ -1,6 +1,5 @@
 const rand = require('randomstring')
-const password= require('passwords')
-const saltRounds = 10;
+const password= require('../helpers/passwords')
 
 exports.generateAuth = async function() {
   return await password.hash(rand.generate(10));
