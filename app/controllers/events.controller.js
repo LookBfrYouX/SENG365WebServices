@@ -1,28 +1,45 @@
 const events = require('../models/events.model')
+const auth = require('../middleware/authorize.middleware')
 
 exports.view = async function(req, res) {
   return null;
   };
 
 exports.add = async function(req, res) {
-  return null;
+  try {
+    if (auth.Authorized(req, res)) {
+      query = req.body.title + ' ' + req.body.description + ' ';
+      query += (req.body.date && ) ? 'date = ' + req.body.date + ', ' : ''
+      query += (req.body.url) ?  'url = ' + req.body.url + ', ' : ''
+      query += (req.body.venue) ?  'venue = ' + req.body.venue + ', ' : ''
+      query += (req.body.capacity) ?  'capacity = ' + req.body.capacity + ', ' : ''
+    } else {
+
+    }
+  } catch {
+
+  }
   };
 
 exports.detailed = async function(req, res) {
   const id = req.params.id;
   try {
-    const result = await events.model.getDetails(id);
-    if (result.length === 0) {
+    const result = (await events.getDetails(parseInt(id)))[0];
+    console.log(result)
+    if (!result) {
+      res.statusMessage = 'Not Found'
       res.status(404)
-        .send('Not Found')
+        .send()
     } else {
-      ers.status(200)
-        .send(result);
+      res.statusMessage = 'OK'
+      res.status(200)
+        .json(result);
       }
     } catch(err) {
-
+      console.log(err);
+      res.statusMessage = 'Internal Server Error'
       res.status(500)
-        .send(`Internal Server Error`)
+        .send()
 
   return null;
   };

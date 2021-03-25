@@ -90,7 +90,7 @@ exports.view = async function(req, res) {
        .json({firstName:`${user.firstName}`, lastName:`${user.lastName}`});
     }
   };
-
+// works now (need to do more testing for changing email and stuff)
 exports.edit = async function(req, res) {
   const userID = req.params.id;
   var query = '';
