@@ -15,8 +15,22 @@ exports.getDetails = async function(id){
 exports.getCategories = async function() {
   const conn = await db.getPool().getConnection();
   const query = `SELECT id
-                 FROM categories`;
+                 FROM events_category`;
   const [ rows ] = await conn.query( query, [id] );
   conn.release();
   return rows;
+}
+
+exports.addEvent = async function(query, values, userId) {
+  try {
+    const conn = await db.getPool().getConnection();
+    const query = 'UPDATE event SET ' + params + ' WHERE id = ?;'
+    await conn.query( query, [id] );
+    conn.release();
+  } catch (err) {
+    console.log(err);
+    throw err;
+
+  }
+
 }

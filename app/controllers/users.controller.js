@@ -19,11 +19,13 @@ exports.register = async function(req, res) {
     } else {
       res.statusMessage = 'Bad Request';
         res.status(400)
+           .send()
       }
     } catch(err) {
       console.log(err)
       res.statusMessage = 'Server Error';
         res.status(500)
+           .send()
   }
 };
 //works
