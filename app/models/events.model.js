@@ -35,8 +35,10 @@ exports.addEvent = async function(params, values) {
 
 exports.editEvent = async function(params, id) {
   try {
+    console.log(params)
+    console.log(id)
     const conn = await db.getPool().getConnection();
-    const query = 'UPDATE event SET ' + params + 'WHERE id = ?';
+    const query = 'UPDATE event SET ' + params + ' WHERE id = ?';
     await conn.query(query, [id]);
     conn.release();
   } catch (err) {

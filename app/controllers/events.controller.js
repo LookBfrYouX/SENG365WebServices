@@ -1,5 +1,6 @@
 const events = require('../models/events.model')
 const auth = require('../middleware/authorize.middleware')
+const users = require('../models/users.model')
 
 exports.view = async function(req, res) {
   return null;
@@ -86,7 +87,6 @@ exports.detailed = async function(req, res) {
   const id = req.params.id;
   try {
     const result = (await events.getDetails(parseInt(id)))[0];
-    console.log(result)
     if (!result) {
       res.statusMessage = 'Not Found'
       res.status(404)
@@ -108,35 +108,47 @@ exports.detailed = async function(req, res) {
 
 exports.edit = async function(req, res) {
   try {
-    eventid = req.params.id;
+    var eventid = req.params.id;
     var currentDate = new Date();
-    if (auth.Authorized(req, res)) {
-      dbCategories = await events.getCategories()
-      for (i=0; i <= req.body.categoryIds; i++) {
-        if (!dbCategories.includes(req.body.categoryIds[i])) {
-          res.statusMessage = 'Bad Request';
-          res.status(400)
-             .send()
+    if (await auth.Authorized(req, res)) {
+      originalEvent = await events.searchEventBy(`id = ${eventid}`);
+      organizer = originalEvent[0].organizer_id;
+      user = await users.searchUserBy(`id = ${organizer}`);
+      if (organizer === req.authenticatedUserId) {
+        dbCategories = await events.getCategories()
+        for (i=0; i <= req.body.categoryIds; i++) {
+          if (!dbCategories.includes(req.body.categoryIds[i])) {
+            res.statusMessage = 'Bad Request';
+            res.status(400)
+               .send()
+          }
         }
-      }
-      query += (req.body.title) ? `title = ${req.body.title}, `: '';
-      query += (req.body.description) ? `description = ${req.body.description}, `: '';
-      query += (req.body.isOnline) ? `isOnline = ${req.body.isOnline}, `: '';
-      query += (req.body.date && new Date(req.body.date).getTime() > currentDate.getTime()) ? `date = ${req.body.date}` : '';
-      query += (req.body.url) ? `url = ${req.body.url}, `: '';
-      query += (req.body.venue) ? `venue = ${req.body.venue}, `: '';
-      query += (req.body.capacity) ? `capacity = ${req.body.capacity}, `: '';
-      query += (req.body.requires_attendance_control) ? `requires_attendance_control = ${req.body.requires_attendance_control}, `: '';
-      query += (req.body.fee) ? `isOnline = ${req.body.fee}, `: '';
-      await events.editEvent(query, eventid);
-      if (req.body.categoryIds) {
-        for (i=0; i < req.body.categoryIds.length; i++) {
-          await events.addCategory(eventId, req.body.categoryIds[i])
+        var query = '';
+        query += (req.body.title) ? `title = '${req.body.title}', `: '';
+        query += (req.body.description) ? `description = '${req.body.description}', `: '';
+        query += (req.body.isOnline) ? `isOnline = ${req.body.isOnline}, `: '';
+        query += (req.body.date && new Date(req.body.date).getTime() > currentDate.getTime()) ? `date = '${req.body.date}'` : '';
+        query += (req.body.url) ? `url = '${req.body.url}', `: '';
+        query += (req.body.venue) ? `venue = '${req.body.venue}', `: '';
+        query += (req.body.capacity) ? `capacity = '${req.body.capacity}', `: '';
+        query += (req.body.requires_attendance_control) ? `requires_attendance_control = '${req.body.requires_attendance_control}', `: '';
+        query += (req.body.fee) ? `fee = ${req.body.fee}, `: '';
+        query = query.slice(0,-2);
+        await events.editEvent(query, parseInt(eventid));
+        if (req.body.categoryIds) {
+          for (i=0; i < req.body.categoryIds.length; i++) {
+            await events.addCategory(eventid, req.body.categoryIds[i])
+          }
         }
+        res.statusMessage = 'OK'
+        res.status(200)
+          .send();
+      } else {
+        res.statusMessage = 'Forbidden';
+        res.status(402)
+           .send()
       }
-      res.statusMessage = 'OK'
-      res.status(200)
-        .send();
+
 
     } else {
       res.statusMessage = 'Unauthorized';
