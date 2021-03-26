@@ -21,6 +21,29 @@ exports.getCategories = async function() {
   return rows;
 }
 
+exports.getCategories = async function(Id) {
+  const conn = await db.getPool().getConnection();
+  const query = `SELECT id
+                 FROM category
+                 WHERE event_id =` + Id;
+  const [ rows ] = await conn.query( query );
+  conn.release();
+  return rows;
+}
+
+exports.getCategoriesDetails = async function() {
+  try {
+    const conn = await db.getPool().getConnection();
+    const query = `SELECT * FROM category`
+    const [ rows ] = await conn.query( query );
+    conn.release();
+    return rows;
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
+}
+
 exports.addEvent = async function(params, values) {
   try {
     const conn = await db.getPool().getConnection();
@@ -35,8 +58,6 @@ exports.addEvent = async function(params, values) {
 
 exports.editEvent = async function(params, id) {
   try {
-    console.log(params)
-    console.log(id)
     const conn = await db.getPool().getConnection();
     const query = 'UPDATE event SET ' + params + ' WHERE id = ?';
     await conn.query(query, [id]);

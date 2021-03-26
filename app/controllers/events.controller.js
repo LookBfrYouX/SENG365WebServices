@@ -166,7 +166,25 @@ exports.edit = async function(req, res) {
 exports.delete = async function(req, res) {
   return null;
   };
-
+// works
 exports.categories = async function(res, res) {
-  return null;
+  try {
+    const result = (await events.getCategoriesDetails());
+    console.log(result);
+    if (!result) {
+      res.statusMessage = 'Not Found'
+      res.status(404)
+        .send()
+    } else {
+      res.statusMessage = 'OK'
+      res.status(200)
+        .json(result);
+      }
+    } catch(err) {
+      console.log(err);
+      res.statusMessage = 'Internal Server Error'
+      res.status(500)
+        .send()
+
+  };
 };

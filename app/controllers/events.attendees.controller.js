@@ -1,7 +1,15 @@
 const attendees = require('../models/events.attendees.model.js')
 
 exports.view = async function(req, res) {
-  return null;
+  try {
+    if (req.params.id) {
+      
+    } else {
+      res.statusMessage = 'Bad Request';
+      res.status(400)
+         .send();
+    }
+  }
 };
 
 exports.request = async function(req, res) {
