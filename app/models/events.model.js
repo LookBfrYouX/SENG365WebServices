@@ -15,22 +15,57 @@ exports.getDetails = async function(id){
 exports.getCategories = async function() {
   const conn = await db.getPool().getConnection();
   const query = `SELECT id
-                 FROM events_category`;
-  const [ rows ] = await conn.query( query, [id] );
+                 FROM category`;
+  const [ rows ] = await conn.query( query );
   conn.release();
   return rows;
 }
 
-exports.addEvent = async function(query, values, userId) {
+exports.addEvent = async function(params, values) {
   try {
     const conn = await db.getPool().getConnection();
-    const query = 'UPDATE event SET ' + params + ' WHERE id = ?;'
-    await conn.query( query, [id] );
+    const query = 'INSERT INTO event (' + params + ') VALUES (' + values + ');';
+    await conn.query(query);
     conn.release();
   } catch (err) {
     console.log(err);
     throw err;
-
   }
+}
 
+exports.editEvent = async function(params, id) {
+  try {
+    const conn = await db.getPool().getConnection();
+    const query = 'UPDATE event SET ' + params + 'WHERE id = ?';
+    await conn.query(query, [id]);
+    conn.release();
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
+}
+
+exports.searchEventBy = async function(params) {
+  try {
+    const conn = await db.getPool().getConnection();
+    const query = 'SELECT * FROM event WHERE ' + params + ';';
+    const [ rows ] = await conn.query(query);
+    conn.release();
+    return rows;
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
+}
+
+exports.addCategory = async function(event_id, categoryId) {
+  try {
+    const conn = await db.getPool().getConnection();
+    const query = "INSERT INTO `event_category` (`event_id`, `category_id`) VALUES (" + event_id + ", " + categoryId + ");";
+    await conn.query(query);
+    conn.release();
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
 }

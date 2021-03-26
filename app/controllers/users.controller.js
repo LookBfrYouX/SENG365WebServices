@@ -10,7 +10,7 @@ exports.register = async function(req, res) {
   userPassword = await password.hash(user.password);
   try {
     const emailCheck = await users.checkEmailExists(user.email);
-    if (emailCheck === false && user.email.includes('@') !== true) {
+    if (emailCheck === false && user.email.includes('@')) {
       userId = await users.addUser(user, userPassword);
       res.statusMessage = 'Created';
         res.status(201)
@@ -101,7 +101,7 @@ exports.edit = async function(req, res) {
     if (number(userID)) {
       const user = await users.searchUserBy(`id = ${userID}`);
       if (await auth.Authorized(req, res)) {
-        if (req.authenticatedUserId === userID) {
+        if (req.authenticatedUserId === parseInt(userID)) {
           // can edit user
           if (req.body.firstName) {
             query += `firstName = '${req.body.firstName}', `;
@@ -120,6 +120,7 @@ exports.edit = async function(req, res) {
             // if currentPassword is included
             if (req.body.currentPassword) {
               const passwordReq = req.body.currentPassword;
+              console.log(passwordReq);
               if (await password.compareHash(passwordReq, user[0].password)) {
                 newHashedPassword = await password.hash(req.body.password)
                 query += `password = '${newHashedPassword}', `;
