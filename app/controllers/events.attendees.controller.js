@@ -35,7 +35,6 @@ exports.view = async function(req, res) {
 };
 
 exports.request = async function(req, res) {
-  console.log('called method')
   eventId = req.params.id;
   try {
     if (await auth.Authorized(req, res)) {
@@ -43,24 +42,28 @@ exports.request = async function(req, res) {
       eventAttendees = await attendees.getEventAttendees(parseInt(eventId));
       const date = new Date();
       eventDate = (await events.getDetails(parseInt(eventId)))[0].date;
-      if (eventAttendees.includes(userId) || eventDate.getTime() < date.getTime()) {
-        res.statusMessage = 'Forbidden';
-        res.status(403)
-           .send();
+      if (eventDate) {
+        if (eventAttendees.includes(userId) || eventDate.getTime() < date.getTime()) {
+          res.statusMessage = 'Forbidden';
+          res.status(403)
+             .send();
+        } else {
+          await attendees.requestAttendance(eventId, userId, date.toISOString().slice(0, 19).replace('T', ' '));
+          res.statusMessage = 'Created';
+          res.status(201)
+             .send();
+        }
       } else {
-        console.log(date);
-        await attendees.requestAttendance(eventId, userId, date.toISOString().slice(0, 19).replace('T', ' '));
-        res.statusMessage = 'OK';
-        res.status(200)
+        res.statusMessage = 'Not Found';
+        res.status(404)
            .send();
       }
 
     } else {
-      res.statusMessage = 'Unauthorized'
+      res.statusMessage = 'Unauthorized';
       res.status(401)
-         .send();
+           .send();
     }
-
   } catch (err) {
     console.log(err);
     res.statusMessage = 'Internal Server Error';
@@ -70,7 +73,44 @@ exports.request = async function(req, res) {
 };
 
 exports.remove = async function(req, res) {
-  return null;
+  eventId = req.params.id;
+  try {
+    if (await auth.Authorized(req, res)) {
+      userId = req.authenticatedUserId;
+      eventAttendees = await attendees.getEventAttendees(parseInt(eventId));
+      attendance_status = await attendees.getEventStatus(eventId, userId)[0];
+      const date = new Date();
+      const event = (await events.getDetails(parseInt(eventId)))[0];
+      const eventDate = new Date(event.date);
+      console.log(eventDate);
+      if (eventDate) {
+        console.log(date);
+        if (eventDate.getTime() < date.getTime() || attendance_status === ('rejected' || undefined) ) {
+          res.statusMessage = 'Forbidden';
+          res.status(403)
+             .send();
+        } else {
+          await attendees.removeAttendance(eventId, userId);
+          res.statusMessage = 'OK';
+          res.status(200)
+             .send();
+        }
+      } else {
+        res.statusMessage = 'Not Found';
+        res.status(404)
+           .send();
+      }
+    } else {
+      res.statusMessage = 'Unauthorized';
+      res.status(401)
+           .send();
+    }
+  } catch (err) {
+    console.log(err);
+    res.statusMessage = 'Internal Server Error';
+    res.status(500)
+       .send();
+  }
 };
 
 exports.edit = async function(req, res) {
