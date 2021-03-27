@@ -3,6 +3,7 @@ const auth = require('../middleware/authorize.middleware')
 const users = require('../models/users.model')
 
 exports.view = async function(req, res) {
+  console.log('calling events')
   return null;
   };
 

@@ -1,7 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const { allowCrossOriginRequestsMiddleware } = require('../app/middleware/cors.middleware');
-
 const fs = require('fs');
 
 module.exports = function () {
@@ -29,7 +28,6 @@ module.exports = function () {
     let i = 0;
     for (; i < routeFiles.length; i++) {
         require(`../app/routes/${routeFiles[i].substring(0, routeFiles[i].length - 3)}`)(app);
-    }
-
+      }
     return app;
 };
