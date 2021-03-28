@@ -1,6 +1,5 @@
 const attendees = require('../models/events.attendees.model')
 const events = require('../models/events.model')
-const password = require ('../helpers/passwords')
 const auth = require('../middleware/authorize.middleware')
 
 exports.view = async function(req, res) {
@@ -75,12 +74,13 @@ exports.request = async function(req, res) {
 exports.remove = async function(req, res) {
   eventId = req.params.id;
   try {
-    if (await auth.Authorized(req, res)) {
-      userId = req.authenticatedUserId;
+    await auth.Authorized(req, res)
+    userId = req.authenticatedUserId;
+    const event = (await events.getDetails(parseInt(eventId)))[0];
+    if (userId === event.organizerId) {
       eventAttendees = await attendees.getEventAttendees(parseInt(eventId));
       attendance_status = await attendees.getEventStatus(eventId, userId)[0];
       const date = new Date();
-      const event = (await events.getDetails(parseInt(eventId)))[0];
       const eventDate = new Date(event.date);
       console.log(eventDate);
       if (eventDate) {
