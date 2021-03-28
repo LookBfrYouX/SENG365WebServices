@@ -114,5 +114,47 @@ exports.remove = async function(req, res) {
 };
 
 exports.edit = async function(req, res) {
-  return null;
+  const eventId = req.params.id;
+  const attendeeId = req.params.user_id
+  const newStatus = req.body.status;
+  try {
+      Authorized = await auth.Authorized(req, res);
+      userId = req.authenticatedUserId;
+      eventAttendees = await attendees.getEventAttendees(parseInt(eventId));
+      const event = (await events.getDetails(parseInt(eventId)))[0];
+      organizerId = event.organizer_id
+      if (Authorized) {
+        if (userId === organizerId) {
+          if (event) {
+            if (newStatus === ('accepted' || 'pending' || 'rejected')) {
+              attendees.changeEventStatus(eventId, attendeeId, newStatus);
+              res.statusMessage = 'OK';
+              res.status(400)
+                 .send();
+            } else {
+              res.statusMessage = 'Bad Request';
+              res.status(400)
+                 .send();
+            }
+          } else {
+            res.statusMessage = 'Not Found';
+            res.status(404)
+               .send();
+          }
+      } else {
+        res.statusMessage = 'Forbidden';
+        res.status(403)
+             .send();
+      }
+    } else {
+      res.statusMessage = 'Unauthorized';
+      res.status(401)
+           .send();
+    }
+  } catch (err) {
+    console.log(err);
+    res.statusMessage = 'Internal Server Error';
+    res.status(500)
+       .send();
+  }
 };

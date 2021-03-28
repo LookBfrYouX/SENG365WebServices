@@ -36,6 +36,21 @@ exports.getEventStatus = async function(eventId, userId) {
   }
 }
 
+exports.changeEventStatus = async function(eventId, userId, attendanceId) {
+  try {
+    const conn = await db.getPool().getConnection();
+    query = `INSERT INTO event_attendees (attendance_status_id = ` + attendanceId + `)
+             WHERE event_id = ` + eventId + `
+             AND user.id = ` + userId
+    const [rows] = await conn.query(query);
+    conn.release();
+    return rows;
+  } catch (err) {
+    console.log(err);
+    throw(err);
+  }
+}
+
 exports.requestAttendance = async function(eventId, userId, date) {
   try {
     console.log(date)
