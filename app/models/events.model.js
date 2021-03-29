@@ -81,10 +81,10 @@ exports.searchEventBy = async function(params) {
   }
 }
 
-exports.addCategory = async function(event_id, categoryId) {
+exports.addCategory = async function(eventd, categoryId) {
   try {
     const conn = await db.getPool().getConnection();
-    const query = "INSERT INTO `event_category` (`event_id`, `category_id`) VALUES (" + event_id + ", " + categoryId + ");";
+    const query = "INSERT INTO `event_category` (`event_id`, `category_id`) VALUES (" + eventId + ", " + categoryId + ");";
     await conn.query(query);
     conn.release();
   } catch (err) {

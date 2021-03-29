@@ -11,14 +11,17 @@ exports.add = async function(req, res) {
     var currentDate = new Date();
 
     if (await auth.Authorized(req, res)) {
-      console.log('truth')
       dbCategories = await events.getCategories();
-      for (i=0; i <= req.body.categoryIds; i++) {
-        if (!dbCategories.includes(req.body.categoryIds[i]) || !req.body.title || !req.body.description) {
-          res.statusMessage = 'Bad Request';
-          res.status(400)
-             .send()
-        }
+      console.log(dbCategories);
+      for (i=0; i <= req.body.categoryIds.length; i++) {
+        for (j=0; j<= dbCategories.length; j++) {
+          if (!(dbCategories[j].id === req.body.categoryIds[i]) || !req.body.title || !req.body.description) {
+            res.statusMessage = 'Bad Request';
+            res.status(400)
+               .send()
+            return null;
+            }
+          }
       }
       var title = req.body.title;
       var titleExists = await events.searchEventBy(`title = '${title}'`)
@@ -62,13 +65,11 @@ exports.add = async function(req, res) {
       }
       query += 'organizer_id';
       values += req.authenticatedUserId;
-      console.log(query)
-      console.log(values)
       await events.addEvent(query, values);
       eventID = (await events.searchEventBy(`title = '${title}'`))[0].id;
-      for (i=0; i < req.body.categoryIds.length; i++) {
-        console.log('for loop activated')
-        await events.addCategory(eventID, req.body.categoryIds[i])
+      for (i=0; i < categoryIds.length; i++) {
+        console.log(categoryIds[i])
+        await events.addCategory(eventID, categoryIds[i])
       }
       res.statusMessage = 'OK'
       res.status(200)
