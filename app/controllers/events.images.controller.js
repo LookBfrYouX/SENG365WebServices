@@ -2,12 +2,12 @@ images = require('../models/events.images.model')
 files = require('../helpers/files')
 auth = require('../middleware/authorize.middleware')
 events = require('../models/events.model')
-eventImages = require('../models/events.images.model')
+
 
 exports.view = async function(req, res) {
   const eventId = req.params.id
   try {
-    const imagePath = (await eventImages.getImage(eventId))[0];
+    const imagePath = (await images.getImage(eventId))[0];
     if (imagePath) {
       res.statusMessage = 'OK';
       res.status(200)
@@ -34,17 +34,21 @@ exports.set = async function(req, res) {
     if (currentEvent) {
       if (await auth.Authorized(req, res)) {
         if (currentEvent.organizer_id === req.authenticatedUserId) {
-          if (await files.saveFile(image, `event_${eventId}`, extension)) {
-            await eventImages.saveImage(parseInt(eventId), `'event_${eventId}.${files.extensions[extension]}'`)
+          if ((await files.saveFile(image, `event_${eventId}`, extension) === 0)) {
+            await images.saveImage(parseInt(eventId), `'event_${eventId}.${files.extensions[extension]}'`)
             res.statusMessage = 'Created'
             res.status(201)
                .send()
-          } else {
+          } else if ((await files.saveFile(image, `event_${eventId}`, extension) === 1)) {
             files.deleteFile(`event_${eventId}`);
             files.saveFile(image.buffer, `event_${eventId}`, extension);
             res.statusMessage = 'OK'
             res.status(200)
                .send();
+             } else {
+               res.statusMessage = 'Bad Request'
+               res.status(400)
+                  .send();
              }
         } else {
           res.statusMessage = 'Forbidden'

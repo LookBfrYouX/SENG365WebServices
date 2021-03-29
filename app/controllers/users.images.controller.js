@@ -1,6 +1,7 @@
 images = require('../models/users.images.model')
 auth = require('../middleware/authorize.middleware')
 users = require('../models/users.images.model')
+files = require('../helpers/files')
 
 exports.get = async function(req, res) {
   const userId = req.params.id
@@ -27,24 +28,28 @@ exports.get = async function(req, res) {
 
 exports.set = async function(req, res) {
   const userId = req.params.id;
-  extension = req.get('Content-Type')
+  const extension = req.get('Content-Type')
   const image = req.body;
-  console.log(image)
+  const userToChange = users.searchUserBy('id = ' + userId);
   try {
-    if (image) {
+    if (userToChange) {
       if (await auth.Authorized(req, res)) {
         if (parseInt(userId) === req.authenticatedUserId) {
-          if (await files.saveFile(image, `user_${userId}`, extension)) {
+          if ((await files.saveFile(image, `user_${userId}`, extension)) === 0) {
             await images.saveImage(parseInt(userId), `'user_${userId}.${files.extensions[extension]}'`)
             res.statusMessage = 'Created'
             res.status(201)
                 .send()
-          } else {
+          } else if ((await files.saveFile(image, `user_${userId}`, extension) === 1)) {
             files.deleteFile(`user_${userId}`);
             files.saveFile(image.buffer, `event_${userId}`, extension);
             res.statusMessage = 'OK'
             res.status(200)
                 .send();
+            } else {
+              res.statusMessage = 'Bad Request'
+              res.status(400)
+                  .send()
             }
         } else {
           res.statusMessage = 'Forbidden'
