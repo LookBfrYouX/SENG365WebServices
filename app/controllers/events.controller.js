@@ -169,7 +169,33 @@ exports.edit = async function(req, res) {
   };
 
 exports.delete = async function(req, res) {
-  return null;
+  eventId = req.params.id;
+  eventToChange = (await events.getDetails(eventId))[0];
+  if (eventToChange) {
+    if (await auth.Authorized(req, res)) {
+      if (parseInt(eventToChange.organizer_id) === parseInt(req.authenticatedUserId)) {
+        await events.deleteAttendees(eventId);
+        await events.deleteCategories(eventId)
+        await events.deleteEvent(eventId);
+        res.statusMessage = 'OK'
+        res.status(200)
+           .send();
+
+      } else {
+        res.statusMessage = 'Forbidden'
+        res.status(403)
+           .send()
+      }
+    } else {
+      res.statMessage = 'Unauthorized'
+      res.status(401)
+         .send()
+    }
+  } else {
+    res.statMessage = 'Not Found'
+    res.status(404)
+       .send()
+  }
   };
 
 // works

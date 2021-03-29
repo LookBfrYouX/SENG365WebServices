@@ -92,3 +92,39 @@ exports.addCategory = async function(eventId, categoryId) {
     throw err;
   }
 }
+
+exports.deleteAttendees = async function(eventId) {
+  try {
+    const conn = await db.getPool().getConnection();
+    const query = 'DELETE FROM event_attendees WHERE event_id = ' + eventId;
+    await conn.query(query);
+    conn.release();
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
+}
+
+exports.deleteEvent = async function(eventId) {
+  try {
+    const conn = await db.getPool().getConnection();
+    const query = 'DELETE FROM event WHERE id = ' + eventId;
+    await conn.query(query);
+    conn.release();
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
+}
+
+exports.deleteCategories = async function(eventId) {
+  try {
+    const conn = await db.getPool().getConnection();
+    const query = 'DELETE FROM event_category WHERE event_id = ' + eventId;
+    await conn.query(query);
+    conn.release();
+  } catch (err) {
+    console.log(err)
+    throw err;
+  }
+}

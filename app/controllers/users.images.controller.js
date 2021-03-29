@@ -4,15 +4,13 @@ users = require('../models/users.images.model')
 files = require('../helpers/files')
 
 exports.get = async function(req, res) {
-  const userId = req.params.id
-  console.log('called function')
+  const userId = req.params.id;
   try {
     const imagePath = (await images.getImage(userId))[0].image_filename;
-    console.log(imagePath)
     if (imagePath) {
       res.statusMessage = 'OK';
       res.status(200)
-         .sendFile(require.main.path + '\\storage\\images\\' + imagePath.image_filename);
+         .sendFile(require.main.path + '\\storage\\images\\' + imagePath);
     } else {
       res.statusMessage = 'Not Found'
       res.status(404)
@@ -32,7 +30,7 @@ exports.set = async function(req, res) {
   const image = req.body;
   const userToChange = users.searchUserBy('id = ' + userId);
   try {
-    if (userToChange) {
+    if (userToChange.length) {
       if (await auth.Authorized(req, res)) {
         if (parseInt(userId) === req.authenticatedUserId) {
           if ((await files.saveFile(image, `user_${userId}`, extension)) === 0) {
@@ -78,12 +76,15 @@ exports.delete = async function(req, res) {
   const userId = req.params.id;
   extension = req.get('Content-Type')
   image = req.body
-  const userToChange = await users.searchUserBy(parseInt(userID));
+  const userToChange = await users.searchUserBy('id = ' + userId);
+  console.log(userToChange)
+  const imagePath = (await images.getImage(userId))[0].image_filename;
   try {
-    if (userToChange) {
+    if (userToChange.length) {
       if (await auth.Authorized(req, res)) {
-        if (userId === req.authenticatedUserId) {
-            files.deleteFile(`user_${userId}`);
+        if (parseInt(userId) === req.authenticatedUserId) {
+            await files.deleteFile(imagePath);
+            await images.deleteImage(parseInt(userId));
             res.statusMessage = 'OK'
             res.status(200)
                 .send()
