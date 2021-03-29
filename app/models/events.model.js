@@ -21,15 +21,15 @@ exports.getCategories = async function() {
   return rows;
 }
 
-exports.getCategories = async function(Id) {
-  const conn = await db.getPool().getConnection();
-  const query = `SELECT id
-                 FROM category
-                 WHERE event_id =` + Id;
-  const [ rows ] = await conn.query( query );
-  conn.release();
-  return rows;
-}
+// exports.getCategories = async function(Id) {
+//   const conn = await db.getPool().getConnection();
+//   const query = `SELECT id
+//                  FROM category
+//                  WHERE event_id =` + Id;
+//   const [ rows ] = await conn.query( query );
+//   conn.release();
+//   return rows;
+// }
 
 exports.getCategoriesDetails = async function() {
   try {

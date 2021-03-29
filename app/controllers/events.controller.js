@@ -3,15 +3,16 @@ const auth = require('../middleware/authorize.middleware')
 const users = require('../models/users.model')
 
 exports.view = async function(req, res) {
-  console.log('calling events')
   return null;
   };
 
 exports.add = async function(req, res) {
   try {
     var currentDate = new Date();
-    if (auth.Authorized(req, res)) {
-      dbCategories = await events.getCategories()
+
+    if (await auth.Authorized(req, res)) {
+      console.log('truth')
+      dbCategories = await events.getCategories();
       for (i=0; i <= req.body.categoryIds; i++) {
         if (!dbCategories.includes(req.body.categoryIds[i]) || !req.body.title || !req.body.description) {
           res.statusMessage = 'Bad Request';
@@ -26,7 +27,7 @@ exports.add = async function(req, res) {
         res.status(400)
            .send()
       }
-      var description = req.body.description
+      var description = req.body.description;
       var categoryIds = req.body.categoryIds;
       var query = 'title, description, ';
       var values = "'" + title + "', '" + description + "', ";
@@ -61,6 +62,8 @@ exports.add = async function(req, res) {
       }
       query += 'organizer_id';
       values += req.authenticatedUserId;
+      console.log(query)
+      console.log(values)
       await events.addEvent(query, values);
       eventID = (await events.searchEventBy(`title = '${title}'`))[0].id;
       for (i=0; i < req.body.categoryIds.length; i++) {
@@ -102,8 +105,6 @@ exports.detailed = async function(req, res) {
       res.statusMessage = 'Internal Server Error'
       res.status(500)
         .send()
-
-  return null;
   };
 };
 
@@ -150,7 +151,6 @@ exports.edit = async function(req, res) {
            .send()
       }
 
-
     } else {
       res.statusMessage = 'Unauthorized';
       res.status(401)
@@ -167,6 +167,7 @@ exports.edit = async function(req, res) {
 exports.delete = async function(req, res) {
   return null;
   };
+
 // works
 exports.categories = async function(res, res) {
   try {
