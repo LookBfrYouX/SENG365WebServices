@@ -2,7 +2,6 @@ users = require('../models/users.model')
 
 exports.Authorized = async function (req, res) {
     const token = req.header('X-Authorization');
-
     try {
       const user = await users.searchUserBy(`auth_token = '${token}'`);
       console.log(user);
@@ -12,7 +11,6 @@ exports.Authorized = async function (req, res) {
       } else {
         req.authenticatedUserId = user[0].userId;
         return true
-        console.log('true')
       }
     } catch(err) {
       console.log(err);

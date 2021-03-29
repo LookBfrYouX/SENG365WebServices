@@ -9,19 +9,22 @@ exports.view = async function(req, res) {
 exports.add = async function(req, res) {
   try {
     var currentDate = new Date();
-
     if (await auth.Authorized(req, res)) {
       dbCategories = await events.getCategories();
       console.log(dbCategories);
-      for (i=0; i <= req.body.categoryIds.length; i++) {
-        for (j=0; j<= dbCategories.length; j++) {
-          if (!(dbCategories[j].id === req.body.categoryIds[i]) || !req.body.title || !req.body.description) {
+      const allCategoryIds = [];
+      for (i=0; i<dbCategories.length; i++) {
+        allCategoryIds.push(dbCategories[i].id)
+      }
+      console.log(allCategoryIds);
+      for (i=0; i < req.body.categoryIds.length; i++) {
+        if (!(allCategoryIds.includes(req.body.categoryIds[i])) || !req.body.title || !req.body.description) {
+            console.log(req.body.categoryIds[i])
             res.statusMessage = 'Bad Request';
             res.status(400)
                .send()
             return null;
-            }
-          }
+        }
       }
       var title = req.body.title;
       var titleExists = await events.searchEventBy(`title = '${title}'`)

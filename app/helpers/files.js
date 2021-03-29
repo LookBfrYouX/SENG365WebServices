@@ -1,6 +1,5 @@
 const fs = require('fs');
 
-const path = `\\storage\\images\\`
 exports.extensions = {
   'image/jpg' : 'jpg',
   'image/jpeg' : 'jpeg',
@@ -8,16 +7,17 @@ exports.extensions = {
   'image/png' : 'png'
 };
 
-exports.trySave = async function (buffer, name, mimeType) {
+exports.saveFile = async function (buffer, name, mimeType) {
   try {
-    if (fs.existsSync(path + `${name}.${this.extensions.mimeType}`)) {
-      return 'path already exists'
+    if (fs.existsSync(require.main.path + `\\storage\\images\\${name}.${this.extensions[mimeType]}`)) {
+      return false;
     } else {
-      await fs.writeFile(require.main.path + `\\storage\\images\\${name}.${this.extensions.mimeType}`, buffer, () => {});
+      await fs.writeFile(require.main.path + `\\storage\\images\\${name}.${this.extensions[mimeType]}`, buffer, () => {});
       return true;
       }
 
   } catch (err) {
+    console.log(err)
     return false;
   }
 }

@@ -81,7 +81,7 @@ exports.searchEventBy = async function(params) {
   }
 }
 
-exports.addCategory = async function(eventd, categoryId) {
+exports.addCategory = async function(eventId, categoryId) {
   try {
     const conn = await db.getPool().getConnection();
     const query = "INSERT INTO `event_category` (`event_id`, `category_id`) VALUES (" + eventId + ", " + categoryId + ");";
