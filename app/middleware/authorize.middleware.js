@@ -5,11 +5,14 @@ exports.Authorized = async function (req, res) {
 
     try {
       const user = await users.searchUserBy(`auth_token = '${token}'`);
-      if (user.length === 0) {
+      console.log(user);
+      if (user.length===0) {
+        console.log('false')
         return false
       } else {
         req.authenticatedUserId = user[0].userId;
         return true
+        console.log('true')
       }
     } catch(err) {
       console.log(err);
