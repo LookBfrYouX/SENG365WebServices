@@ -34,14 +34,19 @@ exports.login = async function(req, res) {
   const passwordReq = req.body.password;
   console.log(passwordReq);
   try {
-    const user = (await users.searchUserBy(`email = '${emailReq}'`))[0]
-    console.log(user)
-    if (password.compareHash(passwordReq, user.password)) {
-      const token = await generateToken.generateAuth();
-      await users.setAuthToken(token, emailReq);
-      res.statusMessage = 'OK';
-      res.status(200)
-         .json({userId:user.userId, token:`${token}`});
+    if ((await users.searchUserBy(`email = '${emailReq}'`))[0]) {
+      const user = (await users.searchUserBy(`email = '${emailReq}'`))[0]
+      if (password.compareHash(passwordReq, user.password)) {
+        const token = await generateToken.generateAuth();
+        await users.setAuthToken(token, emailReq);
+        res.statusMessage = 'OK';
+        res.status(200)
+           .json({userId:user.userId, token:`${token}`});
+      } else {
+        res.statusMessage = 'Bad Request';
+        res.status(400)
+           .send();
+      }
     } else {
       res.statusMessage = 'Bad Request';
       res.status(400)
