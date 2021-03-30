@@ -3,21 +3,38 @@ const auth = require('../middleware/authorize.middleware')
 const users = require('../models/users.model')
 
 exports.view = async function(req, res) {
-  const query = [];
-  sortDict = {'ALPHABETICAL_ASC': 'someSQLvalue',
-              'ALPHABETICAL_DESC': 'someSQLvalue',
-              'DATE_ASC': 'someSQLvalue',
-              'DATE_DESC': 'someSQLvalue',
-              'ATTENDEES_ASC': 'someSQLvalue',
-              'ATTENDEES_DESC': 'someSQLvalue',
-              'CAPACITY_ASC': 'someSQLvalue',
-              'CAPACITY_DESC': 'someSQLvalue'}
-  const {search, categoryIds, organizerId, sortBy, count, startIndex} = req.params;
-  query.add((search) ?  search : '*');
-  query.add((categoryIds) ? categoryIds : '*')
-  query.add((organizerId) ? organizerId : '*')
-  query.add((sortBy) ? sortdict[sortBy] : sortdict['DATE_DESC'])
-  events.getEvents(query);
+  try {
+    var paginatedResults = [];
+    const {q, categoryIds, organizerId, sortBy, count, startIndex} = req.query
+    console.log(q)
+    console.log(categoryIds)
+    console.log(organizerId)
+    console.log(sortBy)
+    console.log(count)
+    console.log(startIndex)
+    var results = (await events.getEvent(q, categoryIds, organizerId, sortBy))[0];
+    let j = 0;
+    for (let i=startIndex; i < results.length; i++) {
+      console.log('inside for loop')
+      if (j >= count) {
+        console.log('broken');
+        break
+      }
+      var selectedEvent = results[i];
+      selectedEvent['categories'] = await events.getCategoriesById(selectedEvent[id])
+      selectedEvent['numAcceptedAttendees'] = await events.getAcceptedAttendees(selectedEvent[id])
+      paginatedResults.push(selectedEvent);
+      j++;
+  }
+  res.statusMessage = 'OK';
+  res.status(200)
+     .send(paginatedResults);
+  } catch (err) {
+    console.log(err);
+    res.statusMessage = 'Internal Server Error'
+    res.status(500)
+      .send()
+  }
   };
 
 exports.add = async function(req, res) {
@@ -27,7 +44,7 @@ exports.add = async function(req, res) {
       dbCategories = await events.getCategories();
       console.log(dbCategories);
       const allCategoryIds = [];
-      for (i=0; i<dbCategories.length; i++) {
+      for (i=0; i < dbCategories.length; i++) {
         allCategoryIds.push(dbCategories[i].id)
       }
       console.log(allCategoryIds);
