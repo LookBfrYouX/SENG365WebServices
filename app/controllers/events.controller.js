@@ -3,7 +3,21 @@ const auth = require('../middleware/authorize.middleware')
 const users = require('../models/users.model')
 
 exports.view = async function(req, res) {
-  return null;
+  const query = [];
+  sortDict = {'ALPHABETICAL_ASC': 'someSQLvalue',
+              'ALPHABETICAL_DESC': 'someSQLvalue',
+              'DATE_ASC': 'someSQLvalue',
+              'DATE_DESC': 'someSQLvalue',
+              'ATTENDEES_ASC': 'someSQLvalue',
+              'ATTENDEES_DESC': 'someSQLvalue',
+              'CAPACITY_ASC': 'someSQLvalue',
+              'CAPACITY_DESC': 'someSQLvalue'}
+  const {search, categoryIds, organizerId, sortBy, count, startIndex} = req.params;
+  query.add((search) ?  search : '*');
+  query.add((categoryIds) ? categoryIds : '*')
+  query.add((organizerId) ? organizerId : '*')
+  query.add((sortBy) ? sortdict[sortBy] : sortdict['DATE_DESC'])
+  events.getEvents(query);
   };
 
 exports.add = async function(req, res) {
