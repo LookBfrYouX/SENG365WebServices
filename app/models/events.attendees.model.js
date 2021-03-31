@@ -3,7 +3,7 @@ const db = require('../../config/db');
 exports.getEventAttendees = async function(eventid) {
   try {
     const conn = await db.getPool().getConnection();
-    query = `SELECT event_attendees.id as attendeeId,attendance_status.name as status,
+    query = `SELECT event_attendees.user_id as attendeeId, attendance_status.name as status,
              user.first_name as firstName, user.last_name as lastName,
              event_attendees.date_of_interest as dateOfInterest
              FROM event_attendees
