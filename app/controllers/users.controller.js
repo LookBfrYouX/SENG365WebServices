@@ -102,8 +102,9 @@ exports.edit = async function(req, res) {
   var query = '';
   // if Authorized / logged in
   try {
-    if (!isNaN(parseInt(userID))) {
-      const user = await users.searchUserBy(`id = ${userID}`);
+    const user = await users.searchUserBy(`id = ${userID}`);
+    console.log(user)
+    if (!isNaN(parseInt(userID)) && user.length != 0) {
       if (await auth.Authorized(req, res)) {
         console.log('anything')
         if (req.authenticatedUserId == parseInt(userID)) {
