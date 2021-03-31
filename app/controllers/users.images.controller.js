@@ -6,11 +6,11 @@ files = require('../helpers/files')
 exports.get = async function(req, res) {
   const userId = req.params.id;
   try {
-    const imagePath = (await images.getImage(userId))[0].image_filename;
-    if (imagePath) {
+    const imagePath = (await images.getImage(userId));
+    if (imagePath.length) {
       res.statusMessage = 'OK';
       res.status(200)
-         .sendFile(require.main.path + '\\storage\\images\\' + imagePath);
+         .sendFile(require.main.path + '\\storage\\images\\' + imagePath[0].image_filename);
     } else {
       res.statusMessage = 'Not Found'
       res.status(404)
@@ -80,16 +80,16 @@ exports.delete = async function(req, res) {
   image = req.body
   const userToChange = await users.searchUserBy('id = ' + userId);
   console.log(userToChange)
-  const imagePath = (await images.getImage(userId))[0].image_filename;
   try {
     if (userToChange.length) {
       if (await auth.Authorized(req, res)) {
         if (parseInt(userId) === req.authenticatedUserId) {
-            await files.deleteFile(imagePath);
-            await images.deleteImage(parseInt(userId));
-            res.statusMessage = 'OK'
-            res.status(200)
-                .send()
+          const imagePath = (await images.getImage(userId))[0].image_filename;
+          await files.deleteFile(imagePath);
+          await images.deleteImage(parseInt(userId));
+          res.statusMessage = 'OK'
+          res.status(200)
+             .send()
           } else {
             res.statusMessage = 'Forbidden'
             res.status(403)
