@@ -10,15 +10,15 @@ exports.extensions = {
 exports.saveFile = async function (buffer, name, mimeType) {
   try {
     if (fs.existsSync(require.main.path + `\\storage\\images\\${name}.${this.extensions[mimeType]}`)) {
-      return 0;
+      return 1;
     } else {
       await fs.writeFile(require.main.path + `\\storage\\images\\${name}.${this.extensions[mimeType]}`, buffer, () => {});
-      return 1;
+      return 0;
       }
 
   } catch (err) {
     console.log(err)
-    return false;
+    throw err
   }
 }
 
