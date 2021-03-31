@@ -37,12 +37,12 @@ exports.set = async function(req, res) {
           if ((userToChange[0].imageFilename)) {
             await files.deleteFile(`user_${userId}`);
             await files.saveFile(image, `user_${userId}`, extension);
-            await images.saveImage(parseInt(userId), `'user_${userId}.${files.extensions[extension]}'`);
+            await images.saveUserImage(parseInt(userId), `'user_${userId}.${files.extensions[extension]}'`);
             res.statusMessage = 'OK'
             res.status(200)
                 .send();
           } else if (await files.saveFile(image, `user_${userId}`, extension)) {
-            await images.saveImage(parseInt(userId), `'user_${userId}.${files.extensions[extension]}'`);
+            await images.saveUserImage(parseInt(userId), `'user_${userId}.${files.extensions[extension]}'`);
             res.statusMessage = 'Created'
             res.status(201)
                 .send()

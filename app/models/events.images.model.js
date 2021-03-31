@@ -1,9 +1,10 @@
 const db = require('../../config/db');
 
-exports.saveImage = async function(eventId, file) {
+exports.saveEventImage = async function(eventId, file) {
   try {
     const conn = await db.getPool().getConnection();
     const query = 'UPDATE event SET image_filename = ' + file + ' WHERE id = ' + eventId;
+    console.log(query);
     await conn.query(query);
     conn.release();
   } catch (err) {

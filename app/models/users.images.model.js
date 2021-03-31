@@ -1,6 +1,6 @@
 const db = require('../../config/db');
 
-exports.saveImage = async function(userId, file) {
+exports.saveUserImage = async function(userId, file) {
   try {
     const conn = await db.getPool().getConnection();
     const query = 'UPDATE user SET image_filename = ' + file + ' WHERE id = ' + userId;

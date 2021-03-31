@@ -1,4 +1,4 @@
-images = require('../models/events.images.model')
+eventImages = require('../models/events.images.model')
 files = require('../helpers/files')
 auth = require('../middleware/authorize.middleware')
 events = require('../models/events.model')
@@ -6,8 +6,7 @@ events = require('../models/events.model')
 exports.view = async function(req, res) {
   const eventId = req.params.id
   try {
-    const imagePath = (await images.getImage(eventId));
-    console.log(imagePath);
+    const imagePath = (await eventImages.getImage(eventId));
     if (imagePath.image_filename) {
       res.statusMessage = 'OK';
       res.status(200)
@@ -27,26 +26,26 @@ exports.view = async function(req, res) {
 
 exports.set = async function(req, res) {
   const eventId = req.params.id
-  extension = req.get('Content-Type')
+  console.log(eventId)
+  const extension = req.get('Content-Type')
   const image = req.body
   currentEvent = (await events.getDetails(parseInt(eventId)))[0];
+  console.log(currentEvent)
   try {
     if (currentEvent) {
+      console.log(currentEvent.imageFilename);
       if (await auth.Authorized(req, res)) {
         if (currentEvent.organizer_id === req.authenticatedUserId) {
-          if ((currentEvent[0].image_filename)) {
+          if (currentEvent.imageFilename) {
             // for event attendees switch date order
-            // check existence of id's what does this even mean
-            // TODO: make new getfilename sql queries
-            // TODO: make new delete filename methods
-            await files.deleteFile(`event_${eventId}`);
             await files.saveFile(image, `event_${eventId}`, extension);
-            await images.saveImage(parseInt(userId), `'event_${eventId}.${files.extensions[extension]}'`);
+            await eventImages.saveEventImage(parseInt(eventId), `'event_${eventId}.${files.extensions[extension]}'`);
             res.statusMessage = 'OK'
             res.status(200)
                 .send();
           } else if (await files.saveFile(image, `event_${eventId}`, extension)) {
-            await images.saveImage(parseInt(eventId), `'event_${eventId}.${files.extensions[extension]}'`);
+            await eventImages.saveEventImage(parseInt(eventId), `'event_${eventId}.${files.extensions[extension]}'`);
+            console.log('apparently saved image')
             res.statusMessage = 'Created'
             res.status(201)
                 .send()

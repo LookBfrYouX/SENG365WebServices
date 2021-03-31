@@ -57,10 +57,10 @@ exports.getEvent = async function(search, categoryIds, organizerId, sortBy) {
 
 exports.getDetails = async function(id){
   const conn = await db.getPool().getConnection();
-  const query = `SELECT event.id, event.title, user.first_name AS organizerFirstName,
+  const query = `SELECT event.id as eventId, event.title, user.first_name AS organizerFirstName,
                  user.last_name AS organizerLastName, COUNT(event_attendees.id) as
                  numAcceptedAttendees, event.description, event.date, event.is_online,
-                 event.url, event.venue, event.requires_attendance_control, event.fee, event.image_filename, 
+                 event.url, event.venue, event.requires_attendance_control, event.fee, event.image_filename as imageFilename,
                  event.organizer_id
                  FROM event
                  JOIN user ON user.id = event.organizer_id
