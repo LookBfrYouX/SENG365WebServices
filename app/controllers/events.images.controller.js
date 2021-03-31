@@ -23,7 +23,7 @@ exports.view = async function(req, res) {
        .send()
   }
 };
-//
+
 exports.set = async function(req, res) {
   const eventId = req.params.id
   console.log(eventId)
