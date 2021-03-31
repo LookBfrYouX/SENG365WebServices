@@ -28,7 +28,7 @@ exports.set = async function(req, res) {
   const userId = req.params.id;
   const extension = req.get('Content-Type')
   const image = req.body;
-  const userToChange = users.searchUserBy('id = ' + userId);
+  const userToChange = await users.searchUserBy('id = ' + userId);
   try {
     if (userToChange.length) {
       if (await auth.Authorized(req, res)) {
