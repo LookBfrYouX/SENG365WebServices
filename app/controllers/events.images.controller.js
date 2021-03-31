@@ -6,8 +6,9 @@ events = require('../models/events.model')
 exports.view = async function(req, res) {
   const eventId = req.params.id
   try {
-    const imagePath = (await eventImages.getImage(eventId));
-    if (imagePath.imageFilename) {
+    const imagePath = (await eventImages.getImage(eventId))[0];
+    console.log(imagePath.image_filename)
+    if (imagePath) {
       res.statusMessage = 'OK';
       res.status(200)
          .sendFile(require.main.path + '\\storage\\images\\' + imagePath.image_filename);
