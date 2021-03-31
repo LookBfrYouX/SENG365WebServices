@@ -33,22 +33,24 @@ exports.set = async function(req, res) {
     if (userToChange.length) {
       if (await auth.Authorized(req, res)) {
         if (parseInt(userId) === req.authenticatedUserId) {
-          if ((await files.saveFile(image, `user_${userId}`, extension)) === 0) {
-            await images.saveImage(parseInt(userId), `'user_${userId}.${files.extensions[extension]}'`)
-            res.statusMessage = 'Created'
-            res.status(201)
-                .send()
-          } else if ((await files.saveFile(image, `user_${userId}`, extension) === 1)) {
-            files.deleteFile(`user_${userId}`);
-            files.saveFile(image.buffer, `event_${userId}`, extension);
+          console.log(userToChange)
+          if ((userToChange[0].image_filename)) {
+            await files.deleteFile(`user_${userId}`);
+            await files.saveFile(image, `event_${userId}`, extension);
+            await images.saveImage(parseInt(userId), `'user_${userId}.${files.extensions[extension]}'`);
             res.statusMessage = 'OK'
             res.status(200)
                 .send();
-            } else {
+          } else if (await files.saveFile(image, `event_${userId}`, extension)) {
+            await images.saveImage(parseInt(userId), `'user_${userId}.${files.extensions[extension]}'`);
+            res.statusMessage = 'Created'
+            res.status(201)
+                .send()
+          } else {
               res.statusMessage = 'Bad Request'
               res.status(400)
                   .send()
-            }
+          }
         } else {
           res.statusMessage = 'Forbidden'
           res.status(403)
