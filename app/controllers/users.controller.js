@@ -32,11 +32,10 @@ exports.register = async function(req, res) {
 exports.login = async function(req, res) {
   const emailReq = req.body.email;
   const passwordReq = req.body.password;
-  console.log(passwordReq);
   try {
     if ((await users.searchUserBy(`email = '${emailReq}'`))[0]) {
       const user = (await users.searchUserBy(`email = '${emailReq}'`))[0]
-      if (password.compareHash(passwordReq, user.password)) {
+      if (await password.compareHash(passwordReq, user.password)) {
         const token = await generateToken.generateAuth();
         await users.setAuthToken(token, emailReq);
         res.statusMessage = 'OK';
