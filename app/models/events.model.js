@@ -15,6 +15,7 @@ exports.getEvent = async function(search, categoryIds, organizerId, sortBy) {
                   event.capacity as capacity
                   FROM event
                   JOIN user ON event.organizer_id = user.id `
+
     if (categoryIds && categoryIds.length) {
       if (!Array.isArray(categoryIds)) {
         categoryIds = [categoryIds];
@@ -40,6 +41,8 @@ exports.getEvent = async function(search, categoryIds, organizerId, sortBy) {
         query += `AND event.organizer_id = ` + organizerId;
       }
     }
+
+    console.log(query);
     query += (search) ? ` AND (event.title LIKE '%`+ search +`%' OR event.description LIKE '%` + search + `%')` : '';
     query += (sortBy) ? ` ORDER BY ` + sortDict[sortBy] : ` ORDER BY ` + sortDict['DATE_DESC'];
     const conn = await db.getPool().getConnection();
@@ -103,7 +106,7 @@ exports.getCategoriesDetails = async function() {
 exports.getAcceptedAttendees = async function(eventId) {
   try {
     const conn = await db.getPool().getConnection();
-    const query = `SELECT COUNT(*) FROM event_attendees
+    const query = `SELECT COUNT(*) as acceptedAttendees FROM event_attendees
                    WHERE event_Id = ` + eventId + ` AND attendance_status_id = 1`;
     [rows] = await conn.query( query );
     conn.release();

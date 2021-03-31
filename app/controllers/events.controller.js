@@ -5,30 +5,37 @@ const users = require('../models/users.model')
 exports.view = async function(req, res) {
   try {
     var paginatedResults = [];
-    const {q, categoryIds, organizerId, sortBy, count, startIndex} = req.query
+    var {q, categoryIds, organizerId, sortBy, count, startIndex} = req.query
     var results = (await events.getEvent(q, categoryIds, organizerId, sortBy))[0];
-    let j = 0;
-    for (let i=startIndex; i < results.length; i++) {
-      if (j >= count) {
-        break
+    if (results) {
+      let j = 0;
+      if (startIndex === undefined) {
+        startIndex = 0;
       }
-      var selectedEvent = results[i];
-      console.log(selectedEvent);
-      selectedEvent['categories'] = await events.getCategoriesById(selectedEvent.eventId)
-      selectedEvent['numAcceptedAttendees'] = await events.getAcceptedAttendees(selectedEvent.eventId)
-      paginatedResults.push(selectedEvent);
-      j++;
-  }
-  if (paginatedResults.length === 0) {
-    res.statusMessage = 'OK';
-    res.status(200)
-       .send(results);
-  } else {
-    res.statusMessage = 'OK';
-    res.status(200)
-       .send(paginatedResults);
-  }
-
+      for (let i=startIndex; i < results.length; i++) {
+        if (j >= count) {
+          break
+        }
+        var selectedEvent = results[i];
+        var categories = (await events.getCategoriesById(selectedEvent.eventId));
+        var categoryNums = [];
+        var numAcceptedAttendees = (await events.getAcceptedAttendees(selectedEvent.eventId))[0].acceptedAttendees
+        for (let k=0; k < categories.length; k++) {
+          categoryNums.push(categories[k].category_id)
+        }
+        selectedEvent['categories'] = categoryNums;
+        selectedEvent['numAcceptedAttendees'] = numAcceptedAttendees;
+        paginatedResults.push(selectedEvent);
+        j++;
+      }
+      res.statusMessage = 'OK';
+      res.status(200)
+         .send(paginatedResults);
+    } else {
+      res.statusMessage = 'Bad Request';
+      res.status(400)
+         .send();
+    }
   } catch (err) {
     console.log(err);
     res.statusMessage = 'Internal Server Error'
