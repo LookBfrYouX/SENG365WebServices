@@ -7,7 +7,7 @@ exports.view = async function(req, res) {
   const eventId = req.params.id
   try {
     const imagePath = (await eventImages.getImage(eventId));
-    if (imagePath.image_filename) {
+    if (imagePath.imageFilename) {
       res.statusMessage = 'OK';
       res.status(200)
          .sendFile(require.main.path + '\\storage\\images\\' + imagePath.image_filename);
