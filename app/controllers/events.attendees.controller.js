@@ -92,7 +92,7 @@ exports.remove = async function(req, res) {
       const date = new Date();
       const eventDate = new Date(event.date);
       console.log(eventDate);
-      if (eventDate) {
+      if (event) {
         console.log(date);
         if (eventDate.getTime() < date.getTime() || attendance_status === ('rejected' || undefined) ) {
           res.statusMessage = 'Forbidden';
