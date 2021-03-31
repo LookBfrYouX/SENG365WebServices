@@ -48,7 +48,6 @@ exports.request = async function(req, res) {
       const date = new Date();
       eventDate = (await events.getDetails(parseInt(eventId)))[0].date;
       for (let i = 0; i < eventAttendees.length; i++) {
-        console.log(eventAttendees[i].attendeeId)
         attendeeIds.push(eventAttendees[i].attendeeId)
       }
       if (eventDate) {
@@ -87,7 +86,7 @@ exports.remove = async function(req, res) {
     await auth.Authorized(req, res)
     userId = req.authenticatedUserId;
     const event = (await events.getDetails(parseInt(eventId)))[0];
-    if (userId === event.organizerId) {
+    if (parseInt(userId) == event.organizer_id) {
       eventAttendees = await attendees.getEventAttendees(parseInt(eventId));
       attendance_status = await attendees.getEventStatus(eventId, userId)[0];
       const date = new Date();
