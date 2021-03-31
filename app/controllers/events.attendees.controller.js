@@ -106,7 +106,7 @@ exports.remove = async function(req, res) {
         res.statusMessage = 'Not Found';
         res.status(404)
            .send();
-      }
+      } //
     } else {
       res.statusMessage = 'Unauthorized';
       res.status(403)
