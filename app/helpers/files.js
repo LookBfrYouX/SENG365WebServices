@@ -14,7 +14,6 @@ exports.saveFile = async function (buffer, name, mimeType) {
     return 1;
 
   } catch (err) {
-    console.log(err)
     return 0;
   }
 }

@@ -26,34 +26,35 @@ exports.view = async function(req, res) {
 //
 exports.set = async function(req, res) {
   const eventId = req.params.id
-  console.log(eventId)
   const extension = req.get('Content-Type')
   const image = req.body
   currentEvent = (await events.getDetails(parseInt(eventId)))[0];
   console.log(currentEvent)
   try {
-    if (currentEvent) {
-      console.log(currentEvent.imageFilename);
+    if (currentEvent.eventId) {
       if (await auth.Authorized(req, res)) {
         if (currentEvent.organizer_id === req.authenticatedUserId) {
-          if (currentEvent.imageFilename) {
-            // for event attendees switch date order
-            await files.saveFile(image, `event_${eventId}`, extension);
-            await eventImages.saveEventImage(parseInt(eventId), `'event_${eventId}.${files.extensions[extension]}'`);
-            res.statusMessage = 'OK'
-            res.status(200)
-                .send();
-          } else if (await files.saveFile(image, `event_${eventId}`, extension)) {
-            await eventImages.saveEventImage(parseInt(eventId), `'event_${eventId}.${files.extensions[extension]}'`);
-            console.log('apparently saved image')
-            res.statusMessage = 'Created'
-            res.status(201)
-                .send()
-          } else {
+          if (files.extensions[extension] === undefined) {
+            console.log('in if statement')
                res.statusMessage = 'Bad Request'
                res.status(400)
                   .send();
-             }
+             } else {
+               if (currentEvent.imageFilename) {
+                 // for event attendees switch date order
+                 await files.saveFile(image, `event_${eventId}`, extension);
+                 await eventImages.saveEventImage(parseInt(eventId), `'event_${eventId}.${files.extensions[extension]}'`);
+                 res.statusMessage = 'OK'
+                 res.status(200)
+                    .send();
+              } else {
+                await files.saveFile(image, `event_${eventId}`, extension)
+                await eventImages.saveEventImage(parseInt(eventId), `'event_${eventId}.${files.extensions[extension]}'`);
+                res.statusMessage = 'Created'
+                res.status(201)
+                  .send()
+                }
+            }
         } else {
           res.statusMessage = 'Forbidden'
           res.status(403)
