@@ -8,7 +8,7 @@ exports.getEventAttendees = async function(eventid) {
              JOIN attendance_status ON event_attendees.attendance_status_id = attendance_status.id
              JOIN user ON event_attendees.user_id = user.id
              WHERE event_attendees.event_id = ` + eventid + `
-             ORDER BY dateOfInterest ASC`;
+             ORDER BY dateOfInterest DESC`;
     const [rows] = await conn.query(query);
     conn.release();
     return rows;
