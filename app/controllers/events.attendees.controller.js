@@ -85,15 +85,17 @@ exports.remove = async function(req, res) {
   try {
     await auth.Authorized(req, res)
     userId = req.authenticatedUserId;
-    const event = (await events.getDetails(parseInt(eventId)))[0];
-    console.log(event);
-    if (parseInt(userId) == event.organizer_id) {
+    const eventSelected = (await events.getDetails(parseInt(eventId)))[0];
+    console.log(eventSelected);
+    console.log(userId)
+    console.log(eventSelected.organizer_id)
+    if (parseInt(userId) === eventSelected.organizer_id) {
       eventAttendees = await attendees.getEventAttendees(parseInt(eventId));
       attendance_status = await attendees.getEventStatus(eventId, userId)[0];
       const date = new Date();
-      const eventDate = new Date(event.date);
+      const eventDate = new Date(eventSelected.date);
       console.log(eventDate);
-      if (event.eventId) {
+      if (eventSelected.eventId) {
         if (eventDate.getTime() < date.getTime() || attendance_status === ('rejected' || undefined) ) {
           res.statusMessage = 'Forbidden';
           res.status(403)
