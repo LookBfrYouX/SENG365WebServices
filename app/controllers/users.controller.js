@@ -108,9 +108,9 @@ exports.edit = async function(req, res) {
         if (req.authenticatedUserId === parseInt(userID)) {
           // can edit user
           if (req.body.firstName) {
-            query += `firstName = '${req.body.firstName}', `;
+            query += `first_name = '${req.body.firstName}', `;
           } if (req.body.lastName) {
-            query += `lastName = '${req.body.lastName}', `;
+            query += `last_name = '${req.body.lastName}', `;
           } if (req.body.email) {
             if (await users.checkEmailExists(req.body.email) || !req.body.email.includes('@')) {
               res.statusMessage = 'Bad Request';
@@ -151,7 +151,11 @@ exports.edit = async function(req, res) {
             res.status(200)
                .send();
           }
-        }
+        } else {
+          res.statusMessage = 'Forbidden';
+          res.status(403)
+             .send();
+          }
       } else {
         res.statusMessage = 'Unauthorized';
         res.status(401)
