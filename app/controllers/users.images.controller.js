@@ -34,14 +34,14 @@ exports.set = async function(req, res) {
       if (await auth.Authorized(req, res)) {
         if (parseInt(userId) === req.authenticatedUserId) {
           console.log(userToChange)
-          if ((userToChange[0].image_filename)) {
+          if ((userToChange[0].imageFilename)) {
             await files.deleteFile(`user_${userId}`);
-            await files.saveFile(image, `event_${userId}`, extension);
+            await files.saveFile(image, `user_${userId}`, extension);
             await images.saveImage(parseInt(userId), `'user_${userId}.${files.extensions[extension]}'`);
             res.statusMessage = 'OK'
             res.status(200)
                 .send();
-          } else if (await files.saveFile(image, `event_${userId}`, extension)) {
+          } else if (await files.saveFile(image, `user_${userId}`, extension)) {
             await images.saveImage(parseInt(userId), `'user_${userId}.${files.extensions[extension]}'`);
             res.statusMessage = 'Created'
             res.status(201)
@@ -84,7 +84,7 @@ exports.delete = async function(req, res) {
     if (userToChange.length) {
       if (await auth.Authorized(req, res)) {
         if (parseInt(userId) === req.authenticatedUserId) {
-          const imagePath = (await images.getImage(userId))[0].image_filename;
+          const imagePath = (await images.getImage(userId))[0].imageFilename;
           await files.deleteFile(imagePath);
           await images.deleteImage(parseInt(userId));
           res.statusMessage = 'OK'

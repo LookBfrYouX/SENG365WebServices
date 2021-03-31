@@ -60,10 +60,10 @@ exports.getDetails = async function(id){
   const query = `SELECT event.id, event.title, user.first_name AS organizerFirstName,
                  user.last_name AS organizerLastName, COUNT(event_attendees.id) as
                  numAcceptedAttendees, event.description, event.date, event.is_online,
-                 event.url, event.venue, event.requires_attendance_control, event.fee,
+                 event.url, event.venue, event.requires_attendance_control, event.fee, event.image_filename, 
                  event.organizer_id
                  FROM event
-                 JOIN user ON user.id=event.organizer_id
+                 JOIN user ON user.id = event.organizer_id
                  JOIN event_attendees ON event.id = event_attendees.event_id
                  WHERE event.id = ?`;
   const [ rows ] = await conn.query( query, [id] );

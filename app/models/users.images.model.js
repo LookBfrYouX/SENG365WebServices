@@ -25,7 +25,7 @@ exports.getImage = async function(userId) {
   }
 }
 
-exports.deleteImage = async function(userId) {
+exports.deleteImage = async function(userId, file) {
   try {
     const conn = await db.getPool().getConnection();
     const query = 'UPDATE user SET image_filename = NULL WHERE id = ' + userId;

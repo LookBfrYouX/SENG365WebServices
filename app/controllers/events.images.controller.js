@@ -3,7 +3,6 @@ files = require('../helpers/files')
 auth = require('../middleware/authorize.middleware')
 events = require('../models/events.model')
 
-
 exports.view = async function(req, res) {
   const eventId = req.params.id
   try {
@@ -35,18 +34,23 @@ exports.set = async function(req, res) {
     if (currentEvent) {
       if (await auth.Authorized(req, res)) {
         if (currentEvent.organizer_id === req.authenticatedUserId) {
-          if ((await files.saveFile(image, `event_${eventId}`, extension) === 0)) {
-            await images.saveImage(parseInt(eventId), `'event_${eventId}.${files.extensions[extension]}'`)
-            res.statusMessage = 'Created'
-            res.status(201)
-               .send()
-          } else if ((await files.saveFile(image, `event_${eventId}`, extension) === 1)) {
-            files.deleteFile(`event_${eventId}`);
-            files.saveFile(image.buffer, `event_${eventId}`, extension);
+          if ((currentEvent[0].image_filename)) {
+            // for event attendees switch date order
+            // check existence of id's what does this even mean
+            // TODO: make new getfilename sql queries
+            // TODO: make new delete filename methods
+            await files.deleteFile(`event_${eventId}`);
+            await files.saveFile(image, `event_${eventId}`, extension);
+            await images.saveImage(parseInt(userId), `'event_${eventId}.${files.extensions[extension]}'`);
             res.statusMessage = 'OK'
             res.status(200)
-               .send();
-             } else {
+                .send();
+          } else if (await files.saveFile(image, `event_${eventId}`, extension)) {
+            await images.saveImage(parseInt(eventId), `'event_${eventId}.${files.extensions[extension]}'`);
+            res.statusMessage = 'Created'
+            res.status(201)
+                .send()
+          } else {
                res.statusMessage = 'Bad Request'
                res.status(400)
                   .send();

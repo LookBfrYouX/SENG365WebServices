@@ -34,7 +34,7 @@ exports.searchUserBy = async function(searchParam) {
     const conn = await db.getPool().getConnection();
     let query = `SELECT id as userId, first_name as firstName,
 												last_name as lastName, email, auth_token as authToken,
-												image_filename as imageFilename, password, image_filename
+												image_filename as imageFilename, password
                  FROM user
                  WHERE `;
     query += searchParam;
