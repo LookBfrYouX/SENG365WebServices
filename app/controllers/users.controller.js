@@ -86,9 +86,9 @@ exports.view = async function(req, res) {
     res.statusMessage = 'OK';
     res.status(200)
        .json({firstName:`${user.firstName}`, lastName:`${user.lastName}`, email:`${user.email}`});
-  } else if (user.length === 0) {
+  } else if (!user) {
     res.statusMessage = 'Not Found';
-    res.status(400)
+    res.status(404)
        .send();
   } else {
     res.statusMessage = 'OK';
