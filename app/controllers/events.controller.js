@@ -6,29 +6,29 @@ exports.view = async function(req, res) {
   try {
     var paginatedResults = [];
     const {q, categoryIds, organizerId, sortBy, count, startIndex} = req.query
-    console.log(q)
-    console.log(categoryIds)
-    console.log(organizerId)
-    console.log(sortBy)
-    console.log(count)
-    console.log(startIndex)
     var results = (await events.getEvent(q, categoryIds, organizerId, sortBy))[0];
     let j = 0;
     for (let i=startIndex; i < results.length; i++) {
-      console.log('inside for loop')
       if (j >= count) {
-        console.log('broken');
         break
       }
       var selectedEvent = results[i];
-      selectedEvent['categories'] = await events.getCategoriesById(selectedEvent[id])
-      selectedEvent['numAcceptedAttendees'] = await events.getAcceptedAttendees(selectedEvent[id])
+      console.log(selectedEvent);
+      selectedEvent['categories'] = await events.getCategoriesById(selectedEvent.eventId)
+      selectedEvent['numAcceptedAttendees'] = await events.getAcceptedAttendees(selectedEvent.eventId)
       paginatedResults.push(selectedEvent);
       j++;
   }
-  res.statusMessage = 'OK';
-  res.status(200)
-     .send(paginatedResults);
+  if (paginatedResults.length === 0) {
+    res.statusMessage = 'OK';
+    res.status(200)
+       .send(results);
+  } else {
+    res.statusMessage = 'OK';
+    res.status(200)
+       .send(paginatedResults);
+  }
+
   } catch (err) {
     console.log(err);
     res.statusMessage = 'Internal Server Error'

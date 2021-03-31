@@ -1,6 +1,6 @@
 const db = require('../../config/db');
 
-exports.getEvent = async function(search, categoryIds, organizerId, sortby) {
+exports.getEvent = async function(search, categoryIds, organizerId, sortBy) {
   try {
     sortDict = {'ALPHABETICAL_ASC': 'event.title ASC',
                 'ALPHABETICAL_DESC': 'event.title DESC',
@@ -20,8 +20,12 @@ exports.getEvent = async function(search, categoryIds, organizerId, sortby) {
         categoryIds = [categoryIds];
       }
       var allCategories = (await this.getCategories());
+      const allCategoryIds = [];
+      for (i=0; i < allCategories.length; i++) {
+        allCategoryIds.push(allCategories[i].id)
+      }
       for (i=0; i < categoryIds.length; i++) {
-        if (!allCategories.includes(categoryIds[i])) {
+        if (!allCategoryIds.includes(parseInt(categoryIds[i]))) {
           return false
         }
       }
@@ -29,7 +33,6 @@ exports.getEvent = async function(search, categoryIds, organizerId, sortby) {
               WHERE event_category.category_id
               IN (` + categoryIds + `) `
     }
-    console.log(query)
     if (organizerId) {
       if (isNaN(parseInt(organizerId))) {
         return false
@@ -37,8 +40,8 @@ exports.getEvent = async function(search, categoryIds, organizerId, sortby) {
         query += `AND event.organizer_id = ` + organizerId;
       }
     }
-    query += (search) ? ` AND (event.title LIKE `+ search +` OR event.description LIKE ` + search + `)` : '';
-    query += (sortby) ? ` ORDER BY ` + sortDict[sortDict] : ` ORDER BY ` + sortDict['DATE_DESC'];
+    query += (search) ? ` AND (event.title LIKE '%`+ search +`%' OR event.description LIKE '%` + search + `%')` : '';
+    query += (sortBy) ? ` ORDER BY ` + sortDict[sortBy] : ` ORDER BY ` + sortDict['DATE_DESC'];
     const conn = await db.getPool().getConnection();
     const rows = await conn.query(query);
     conn.release();
@@ -76,8 +79,8 @@ exports.getCategories = async function() {
 
 exports.getCategoriesById = async function(Id) {
   const conn = await db.getPool().getConnection();
-  const query = `SELECT id
-                 FROM category
+  const query = `SELECT category_id
+                 FROM event_category
                  WHERE event_id =` + Id;
   const [ rows ] = await conn.query( query );
   conn.release();
@@ -100,8 +103,8 @@ exports.getCategoriesDetails = async function() {
 exports.getAcceptedAttendees = async function(eventId) {
   try {
     const conn = await db.getPool().getConnection();
-    const query = `SELECT COUNT(*) FROM event_categories
-                   WHERE event_attendees = ` + eventId + ` AND attendance_status_id = 1`;
+    const query = `SELECT COUNT(*) FROM event_attendees
+                   WHERE event_Id = ` + eventId + ` AND attendance_status_id = 1`;
     [rows] = await conn.query( query );
     conn.release();
     return rows
