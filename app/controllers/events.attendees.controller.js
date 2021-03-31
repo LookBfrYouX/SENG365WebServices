@@ -83,10 +83,9 @@ exports.request = async function(req, res) {
 exports.remove = async function(req, res) {
   eventId = req.params.id;
   try {
-    await auth.Authorized(req, res);
-    userId = req.authenticatedUserId;
-    const eventSelected = (await events.getDetails(parseInt(eventId)))[0];
-    if (parseInt(userId) === eventSelected.organizer_id) {
+    if (await auth.Authorized(req, res)) {
+      userId = req.authenticatedUserId;
+      const eventSelected = (await events.getDetails(parseInt(eventId)))[0];
       eventAttendees = await attendees.getEventAttendees(parseInt(eventId));
       attendance_status = await attendees.getEventStatus(eventId, userId)[0];
       const date = new Date();
@@ -106,7 +105,7 @@ exports.remove = async function(req, res) {
         res.statusMessage = 'Not Found';
         res.status(404)
            .send();
-      } //
+      }
     } else {
       res.statusMessage = 'Unauthorized';
       res.status(403)
