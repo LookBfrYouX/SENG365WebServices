@@ -112,7 +112,7 @@ exports.edit = async function(req, res) {
           } if (req.body.lastName) {
             query += `lastName = '${req.body.lastName}', `;
           } if (req.body.email) {
-            if (await users.checkEmailExists(req.body.email) || req.body.email.includes('@')) {
+            if (await users.checkEmailExists(req.body.email) || !req.body.email.includes('@')) {
               res.statusMessage = 'Bad Request';
               res.status(400)
                  .send();
@@ -151,19 +151,20 @@ exports.edit = async function(req, res) {
             res.status(200)
                .send();
           }
+        }
       } else {
         res.statusMessage = 'Unauthorized';
         res.status(401)
            .send();
       }
+
     } else {
       res.statusMessage = 'Not Found';
       res.status(404)
          .send();
     }
-}
-} catch (err) {
-  console.log(err);
+  } catch (err) {
+    console.log(err);
     res.statusMessage = 'Internal Server Error';
     res.status(500)
        .send();
