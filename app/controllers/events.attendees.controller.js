@@ -87,28 +87,35 @@ exports.remove = async function(req, res) {
       userId = req.authenticatedUserId;
       const eventSelected = (await events.getDetails(parseInt(eventId)))[0];
       eventAttendees = await attendees.getEventAttendees(parseInt(eventId));
-      attendance_status = await attendees.getEventStatus(eventId, userId)[0];
-      const date = new Date();
-      const eventDate = new Date(eventSelected.date);
-      if (eventSelected.eventId) {
-        if (eventDate.getTime() < date.getTime() || attendance_status === ('rejected' || undefined) ) {
-          res.statusMessage = 'Forbidden';
-          res.status(403)
-             .send();
+      attendance_status = (await attendees.getEventStatus(eventId, userId))[0];
+      if (attendance_status) {
+        console.log(attendance_status);
+        const date = new Date();
+        const eventDate = new Date(eventSelected.date);
+        if (eventSelected.eventId) {
+          if (eventDate.getTime() < date.getTime() || attendance_status.status === ('rejected' || undefined) ) {
+            res.statusMessage = 'Forbidden';
+            res.status(403)
+               .send();
+          } else {
+            await attendees.removeAttendance(eventId, userId);
+            res.statusMessage = 'OK';
+            res.status(200)
+               .send();
+          }
         } else {
-          await attendees.removeAttendance(eventId, userId);
-          res.statusMessage = 'OK';
-          res.status(200)
+          res.statusMessage = 'Not Found';
+          res.status(404)
              .send();
         }
       } else {
-        res.statusMessage = 'Not Found';
-        res.status(404)
+        res.statusMessage = 'Forbidden';
+        res.status(403)
            .send();
       }
     } else {
       res.statusMessage = 'Unauthorized';
-      res.status(403)
+      res.status(401)
            .send();
     }
   } catch (err) {
