@@ -7,7 +7,6 @@ exports.view = async function(req, res) {
   const eventId = req.params.id
   try {
     const imagePath = (await eventImages.getImage(eventId))[0];
-    console.log(imagePath.image_filename)
     if (imagePath) {
       res.statusMessage = 'OK';
       res.status(200)
