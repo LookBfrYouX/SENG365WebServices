@@ -157,8 +157,8 @@ exports.edit = async function(req, res) {
            .send();
       }
     } else {
-      res.statusMessage = 'Forbidden';
-      res.status(403)
+      res.statusMessage = 'Not Found';
+      res.status(404)
          .send();
     }
 }
