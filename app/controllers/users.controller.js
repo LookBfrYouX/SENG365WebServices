@@ -14,7 +14,7 @@ exports.register = async function(req, res) {
       userId = await users.addUser(user, userPassword);
       res.statusMessage = 'Created';
         res.status(201)
-        .json({userId:11});
+        .json({userId:userId});
 
     } else {
       res.statusMessage = 'Bad Request';
@@ -105,7 +105,8 @@ exports.edit = async function(req, res) {
     if (!isNaN(parseInt(userID))) {
       const user = await users.searchUserBy(`id = ${userID}`);
       if (await auth.Authorized(req, res)) {
-        if (req.authenticatedUserId === parseInt(userID)) {
+        console.log('anything')
+        if (req.authenticatedUserId == parseInt(userID)) {
           // can edit user
           if (req.body.firstName) {
             query += `first_name = '${req.body.firstName}', `;
@@ -157,6 +158,7 @@ exports.edit = async function(req, res) {
              .send();
           }
       } else {
+        console.log('Unauthorized')
         res.statusMessage = 'Unauthorized';
         res.status(401)
            .send();
