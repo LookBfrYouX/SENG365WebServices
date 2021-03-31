@@ -14,7 +14,7 @@ exports.register = async function(req, res) {
       userId = await users.addUser(user, userPassword);
       res.statusMessage = 'Created';
         res.status(201)
-        .json(userId);
+        .json({userId:11});
 
     } else {
       res.statusMessage = 'Bad Request';
