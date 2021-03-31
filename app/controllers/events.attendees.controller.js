@@ -8,23 +8,28 @@ exports.view = async function(req, res) {
     const eventId = req.params.id;
     const results = await attendees.getEventAttendees(parseInt(eventId));
     const organizerId = (await events.getDetails(parseInt(eventId)))[0].organizer_id
-    console.log(organizerId)
-    console.log(req.authenticatedUserId);
-    if (req.authenticatedUserId === organizerId) {
-      res.statusMessage = 'OK'
-      res.status(200)
-          .send(results)
-    } else {
-      var returnValues = [];
-      for (i = 0; i < results.length; i++) {
-        if (results[i].status === 'accepted' || (results[i].userId === req.authenticatedUserId && results[i].status === ('rejected' || 'pending'))) {
-          returnValues.push(results[i])
+    if (results.length) {
+      if (req.authenticatedUserId === organizerId) {
+        res.statusMessage = 'OK'
+        res.status(200)
+            .send(results)
+      } else {
+        var returnValues = [];
+        for (i = 0; i < results.length; i++) {
+          if (results[i].status === 'accepted' || (results[i].userId === req.authenticatedUserId && results[i].status === ('rejected' || 'pending'))) {
+            returnValues.push(results[i])
+          }
         }
+        res.statusMessage = 'OK'
+        res.status(200)
+            .send(returnValues)
       }
-      res.statusMessage = 'OK'
-      res.status(200)
-          .send(returnValues)
+    } else {
+      res.statusMessage = 'Not Found'
+      res.status(404)
+          .send()
     }
+
   } catch (err) {
     console.log(err);
     res.statusMessage = 'Internal Server Error';
