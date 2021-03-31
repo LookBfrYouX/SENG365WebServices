@@ -102,7 +102,7 @@ exports.edit = async function(req, res) {
   var query = '';
   // if Authorized / logged in
   try {
-    if (number(userID)) {
+    if (!isNaN(parseInt(userID))) {
       const user = await users.searchUserBy(`id = ${userID}`);
       if (await auth.Authorized(req, res)) {
         if (req.authenticatedUserId === parseInt(userID)) {
@@ -130,7 +130,7 @@ exports.edit = async function(req, res) {
                 query += `password = '${newHashedPassword}', `;
               } else {
                 res.statusMessage = 'Forbidden';
-                res.status(402)
+                res.status(403)
                    .send();
                 }
             } else {
@@ -158,7 +158,7 @@ exports.edit = async function(req, res) {
       }
     } else {
       res.statusMessage = 'Forbidden';
-      res.status(401)
+      res.status(403)
          .send();
     }
 }
