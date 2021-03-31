@@ -86,14 +86,14 @@ exports.remove = async function(req, res) {
     await auth.Authorized(req, res)
     userId = req.authenticatedUserId;
     const event = (await events.getDetails(parseInt(eventId)))[0];
+    console.log(event);
     if (parseInt(userId) == event.organizer_id) {
       eventAttendees = await attendees.getEventAttendees(parseInt(eventId));
       attendance_status = await attendees.getEventStatus(eventId, userId)[0];
       const date = new Date();
       const eventDate = new Date(event.date);
       console.log(eventDate);
-      if (event) {
-        console.log(date);
+      if (event.eventId) {
         if (eventDate.getTime() < date.getTime() || attendance_status === ('rejected' || undefined) ) {
           res.statusMessage = 'Forbidden';
           res.status(403)
@@ -111,7 +111,7 @@ exports.remove = async function(req, res) {
       }
     } else {
       res.statusMessage = 'Unauthorized';
-      res.status(401)
+      res.status(403)
            .send();
     }
   } catch (err) {
