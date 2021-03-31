@@ -44,10 +44,15 @@ exports.request = async function(req, res) {
     if (await auth.Authorized(req, res)) {
       userId = req.authenticatedUserId;
       eventAttendees = await attendees.getEventAttendees(parseInt(eventId));
+      var attendeeIds = [];
       const date = new Date();
       eventDate = (await events.getDetails(parseInt(eventId)))[0].date;
+      for (let i = 0; i < eventAttendees.length; i++) {
+        console.log(eventAttendees[i].attendeeId)
+        attendeeIds.push(eventAttendees[i].attendeeId)
+      }
       if (eventDate) {
-        if (eventAttendees.includes(userId) || eventDate.getTime() < date.getTime()) {
+        if (attendeeIds.includes(userId) || eventDate.getTime() < date.getTime()) {
           res.statusMessage = 'Forbidden';
           res.status(403)
              .send();
