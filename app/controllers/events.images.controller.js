@@ -54,7 +54,7 @@ exports.set = async function(req, res) {
                 res.status(201)
                   .send()
                 }
-            }
+            }//
         } else {
           res.statusMessage = 'Forbidden'
           res.status(403)
